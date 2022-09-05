@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="os_reg_white_16">
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textSize">@dimen/dimen_txt_16</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="os_reg_white_14">
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textSize">@dimen/dimen_txt_14</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="os_reg_white_12">
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textSize">@dimen/dimen_txt_12</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="os_reg_white_26">
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textSize">@dimen/dimen_txt_26</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="os_reg_white_50">
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textSize">@dimen/dimen_txt_50</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="os_reg_gray_12">
+        <item name="android:fontFamily">@font/open_sans</item>
+        <item name="android:textSize">@dimen/dimen_txt_12</item>
+        <item name="android:textColor">@color/gray</item>
+    </style>
+
+</resources>

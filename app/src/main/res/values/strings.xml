@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MyWeather</string>
+
+    <string name="unit_celsius">°C</string>
+    <string name="feels_like">Ощущается как</string>
+    <string name="unit_ms">м/с</string>
+    <string name="unit_percent">%</string>
+    <string name="unit_mm_of_mercury">мм рт. ст.</string>
+
+
+</resources>
