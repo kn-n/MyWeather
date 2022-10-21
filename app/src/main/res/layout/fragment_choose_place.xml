@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/dark_blue"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/dimen_20"
+        android:layout_marginHorizontal="@dimen/dimen_16">
+
+        <EditText
+            android:id="@+id/search_field"
+            style="@style/os_reg_white_16.edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/search_hint"
+            android:paddingStart="@dimen/dimen_5"
+            android:paddingEnd="@dimen/dimen_40" />
+
+        <ImageView
+            android:layout_width="@dimen/dimen_size_25"
+            android:layout_height="@dimen/dimen_size_25"
+            android:layout_gravity="end"
+            android:layout_marginTop="@dimen/dimen_10"
+            android:layout_marginEnd="@dimen/dimen_5"
+            android:src="@drawable/ic_search_24"
+            app:tint="@color/white" />
+
+    </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/found_places_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="@dimen/dimen_20"
+        tools:listitem="@layout/item_place"/>
+
+
+</LinearLayout>

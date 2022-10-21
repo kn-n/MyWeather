@@ -10,6 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.terrakok.cicerone.Cicerone
+import com.github.terrakok.cicerone.NavigatorHolder
+import com.github.terrakok.cicerone.Router
 import ru.kn_n.myweather.databinding.FragmentWeatherInfoBinding
 import ru.kn_n.myweather.di.Scopes
 import ru.kn_n.myweather.entities.CurrentWeatherForecastEntity
@@ -17,7 +20,11 @@ import ru.kn_n.myweather.entities.ForecastEntity
 import ru.kn_n.myweather.entities.HourlyWeatherForecastEntity
 import ru.kn_n.myweather.presentation.ViewModelFactory
 import ru.kn_n.myweather.utils.Status
+import toothpick.ProvidesSingleton
+import toothpick.ProvidesSingletonInScope
+import toothpick.Toothpick
 import toothpick.Toothpick.openScope
+import toothpick.ktp.binding.module
 import javax.inject.Inject
 
 class WeatherInfoFragment : Fragment() {
@@ -34,13 +41,27 @@ class WeatherInfoFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentWeatherInfoBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setupViewModel()
-        setupObservers()
         setupAdapter()
 
-        return root
+        binding.placeContainer.setOnClickListener {
+            viewModel.routToChooseFragment()
+        }
+
+        binding.update.setOnClickListener {
+            getWeather()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getWeather()
     }
 
     private fun setupViewModel() {
@@ -48,13 +69,12 @@ class WeatherInfoFragment : Fragment() {
         viewModel = ViewModelProvider(this, viewModelFactory)[WeatherInfoViewModel::class.java]
     }
 
-    private fun setupObservers() {
-        viewModel.getWeather("56.897699", "60.626907").observe(viewLifecycleOwner, Observer {
+    private fun getWeather() {
+        viewModel.getWeather("56.897699", "60.626907").observe(viewLifecycleOwner) {
             it.let { resource ->
                 when (resource.status) {
                     Status.SUCCESS -> {
                         val data = resource.data!!
-                        Log.d("DEG", data.currentForecast.temp)
                         showCurrentWeatherForecast(data.currentForecast)
                         showHourlyWeatherForecast(data.hourlyForecast)
                     }
@@ -66,7 +86,7 @@ class WeatherInfoFragment : Fragment() {
                     }
                 }
             }
-        })
+        }
     }
 
     private fun setupAdapter() {
@@ -74,7 +94,6 @@ class WeatherInfoFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
     }
 
-    @SuppressLint("SetTextI18n")
     private fun showCurrentWeatherForecast(data: CurrentWeatherForecastEntity) {
         with(binding) {
             temperatureNow.text = data.temp

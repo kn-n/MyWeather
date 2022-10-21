@@ -37,4 +37,12 @@
         <item name="android:textColor">@color/gray</item>
     </style>
 
+    <style name="os_reg_white_16.edit_text">
+        <item name="backgroundTint">@color/white</item>
+        <item name="drawableTint">@color/white</item>
+        <item name="android:textColorHighlight">@color/dark_gray</item>
+        <item name="android:textColorHint">@color/white</item>
+        <item name="android:textColorLink">@color/white</item>
+    </style>
+
 </resources>

@@ -7,7 +7,7 @@
     tools:context=".presentation.MainActivity">
 
     <fragment
-        android:id="@+id/weather_info_fragment"
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:name="ru.kn_n.myweather.presentation.weather.WeatherInfoFragment"

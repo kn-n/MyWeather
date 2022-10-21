@@ -18,6 +18,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/place_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/dimen_10"
@@ -34,12 +35,20 @@
             <TextView
                 android:id="@+id/place"
                 style="@style/os_reg_white_14"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dimen_10"
+                android:layout_marginHorizontal="@dimen/dimen_10"
+                android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
-                tools:text="г. Екатеринбург, микрорайон Эльмаш" />
+                tools:text="Россия, г. Екатеринбург" />
+
+            <ImageView
+                android:id="@+id/update"
+                android:layout_width="@dimen/dimen_20"
+                android:layout_height="@dimen/dimen_20"
+                android:src="@drawable/ic_update_48"
+                app:tint="@color/white" />
 
         </LinearLayout>
 
@@ -55,8 +64,8 @@
                 android:id="@+id/ic_weather"
                 android:layout_width="@dimen/dimen_size_110"
                 android:layout_height="@dimen/dimen_size_110"
-                android:layout_marginTop="@dimen/dimen_5"
                 android:layout_marginHorizontal="@dimen/dimen_30"
+                android:layout_marginTop="@dimen/dimen_5"
                 android:src="@drawable/icn_sunny" />
 
             <LinearLayout
@@ -251,15 +260,15 @@
                 android:layout_width="@dimen/dimen_size_30"
                 android:layout_height="@dimen/dimen_size_30"
                 android:layout_gravity="center_horizontal"
-                android:src="@drawable/ic_barometer"
                 android:padding="2dp"
+                android:src="@drawable/ic_barometer"
                 app:tint="@color/white" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dimen_5"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dimen_5"
                 android:orientation="horizontal">
 
                 <TextView

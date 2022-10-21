@@ -50,7 +50,6 @@ class OneCallWeatherResponseMapper {
             uvi = response.uvi?.roundToInt().toString(),
             windSpeed = "%.1f".format(response.wind_speed ?: -1.0).toDouble().toString(),
             windDeg = getDirection(response.wind_deg ?: -1),
-//            windDeg = response.wind_deg.toString(),
             weather = response.weather?.map { mapWeatherResponse(it) }.orEmpty()
         )
     }
