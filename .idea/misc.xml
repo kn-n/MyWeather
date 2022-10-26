@@ -12,6 +12,7 @@
         <entry key="..\:/projects/MyWeather/app/src/main/res/layout/fragment_weather_info.xml" value="0.33" />
         <entry key="..\:/projects/MyWeather/app/src/main/res/layout/item_city.xml" value="0.30427350427350425" />
         <entry key="..\:/projects/MyWeather/app/src/main/res/layout/item_hourly_weather_forecast.xml" value="0.371875" />
+        <entry key="..\:/projects/MyWeather/app/src/main/res/layout/item_place.xml" value="0.30512820512820515" />
       </map>
     </option>
   </component>

@@ -1,12 +1,16 @@
 package ru.kn_n.myweather.presentation
 
+import android.Manifest
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import com.github.terrakok.cicerone.NavigatorHolder
 import com.github.terrakok.cicerone.androidx.AppNavigator
 import ru.kn_n.myweather.R
 import ru.kn_n.myweather.di.Scopes
+import ru.kn_n.myweather.utils.Constants
+import ru.kn_n.myweather.utils.haveLocationPermissions
 import toothpick.Toothpick
 import javax.inject.Inject
 
@@ -30,7 +34,14 @@ class MainActivity : AppCompatActivity() {
 
         setupViewModel()
 
-        viewModel.checkLocationPermissions(this)
+//        viewModel.checkLocationPermissions(this)
+        if (!haveLocationPermissions(this)){
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                Constants.PERMISSION_ID
+            )
+        }
     }
 
     private fun setupViewModel() {

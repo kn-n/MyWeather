@@ -1,32 +1,31 @@
 package ru.kn_n.myweather.presentation.weather
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.location.Address
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import ru.kn_n.myweather.databinding.FragmentWeatherInfoBinding
 import ru.kn_n.myweather.di.Scopes
 import ru.kn_n.myweather.entities.CurrentWeatherForecastEntity
 import ru.kn_n.myweather.entities.HourlyWeatherForecastEntity
 import ru.kn_n.myweather.presentation.ViewModelFactory
-import ru.kn_n.myweather.utils.Constants.PERMISSION_ID
 import ru.kn_n.myweather.utils.Status
-import ru.kn_n.myweather.utils.checkLocationPermissions
-import ru.kn_n.myweather.utils.requestPermission
 import toothpick.Toothpick.openScope
 import javax.inject.Inject
+
+const val PLACE_LAT = "place_lat"
+const val PLACE_LON = "place_lon"
 
 class WeatherInfoFragment : Fragment() {
 
@@ -35,6 +34,11 @@ class WeatherInfoFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private var placeLat = ""
+    private var placeLon = ""
 
     private var _binding: FragmentWeatherInfoBinding? = null
 
@@ -51,6 +55,11 @@ class WeatherInfoFragment : Fragment() {
         setupViewModel()
         setupAdapter()
 
+        arguments?.takeIf { it.containsKey(PLACE_LAT) && it.containsKey(PLACE_LON) }?.apply {
+            placeLat = getString(PLACE_LAT)!!
+            placeLon = getString(PLACE_LON)!!
+        }
+
         binding.placeContainer.setOnClickListener {
             viewModel.routToChooseFragment()
         }
@@ -62,7 +71,12 @@ class WeatherInfoFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        getWeatherFromLocation()
+        if (placeLat.isEmpty() && placeLon.isEmpty()){
+            getWeatherFromLocation()
+        } else {
+            getWeather(placeLat, placeLon)
+            Log.d("PC", "$placeLat | $placeLon")
+        }
     }
 
     private fun setupViewModel() {
@@ -70,25 +84,14 @@ class WeatherInfoFragment : Fragment() {
         viewModel = ViewModelProvider(this, viewModelFactory)[WeatherInfoViewModel::class.java]
     }
 
+    @SuppressLint("MissingPermission")
     private fun getWeatherFromLocation() {
-        viewModel.getLocation(requireContext()).observe(viewLifecycleOwner) {
-            it.let { resource ->
-                when (resource.status) {
-                    Status.SUCCESS -> {
-                        val data = resource.data!!
-                        getWeather(data.result.latitude.toString(), data.result.longitude.toString())
-                    }
-                    Status.ERROR -> {
-                        Log.d("GL", it.message.toString())
-                    }
-                    Status.LOADING -> {
-                        Log.d("GL", "loading")
-                    }
-                    Status.EMPTY -> {
-                        getWeather("56.897699", "60.626907")
-                    }
-                }
-            }
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        fusedLocationClient.lastLocation.addOnCompleteListener { task ->
+            val location = task.result
+            Log.d("GL", location.toString())
+            getWeather(location.longitude.toString(), location.longitude.toString())
         }
     }
 
@@ -135,8 +138,8 @@ class WeatherInfoFragment : Fragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun showPlace(address: Address){
-        binding.place.text = address.getAddressLine(0)
+    private fun showPlace(address: Address) {
+        binding.place.text = "${address.countryName}, ${address.adminArea}, ${address.subAdminArea}"
     }
 
     private fun showCurrentWeatherForecast(data: CurrentWeatherForecastEntity) {
@@ -162,8 +165,11 @@ class WeatherInfoFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(): WeatherInfoFragment {
-            return WeatherInfoFragment()
+        fun instance(lat: String, lon: String): WeatherInfoFragment {
+            val fragment = WeatherInfoFragment()
+            fragment.arguments = Bundle().apply { putString(PLACE_LAT, lat)
+                                                putString(PLACE_LON, lon)}
+            return fragment
         }
     }
 }

@@ -1,5 +1,6 @@
 package ru.kn_n.myweather.presentation.choosePlace
 
+import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
@@ -52,10 +53,6 @@ class ChoosePlaceFragment : Fragment() {
         setupAdapter()
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
     private fun setupViewModel() {
         viewModelFactory = Toothpick.openScope(Scopes.APP_SCOPE).getInstance(ViewModelFactory::class.java)
         viewModel = ViewModelProvider(this, viewModelFactory)[ChoosePlaceViewModel::class.java]
@@ -67,6 +64,7 @@ class ChoosePlaceFragment : Fragment() {
                 when (resource.status) {
                     Status.SUCCESS -> {
                         val data = resource.data!!
+                        showFoundPlaces(data)
                         Log.d("SF", data.toString())
                     }
                     Status.ERROR -> {
@@ -80,9 +78,17 @@ class ChoosePlaceFragment : Fragment() {
         }
     }
 
+    private fun showFoundPlaces(result: MutableList<Address>){
+        binding.foundPlacesRecyclerView.adapter = FoundPlacesAdapter(result) { place -> onListItemClick(place) }
+    }
+
     private fun setupAdapter() {
         binding.foundPlacesRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+    }
+
+    private fun onListItemClick(place:Address) {
+        viewModel.goToWeather(place.latitude.toString(), place.longitude.toString())
     }
 
     override fun onDestroyView() {

@@ -14,13 +14,13 @@ import ru.kn_n.myweather.data.repositories.WeatherInfoRepository
 import ru.kn_n.myweather.presentation.cache.Cache
 import ru.kn_n.myweather.presentation.navigation.Screens
 import ru.kn_n.myweather.utils.Resource
+import ru.kn_n.myweather.utils.haveLocationPermissions
 import javax.inject.Inject
 
 class WeatherInfoViewModel @Inject constructor(
     private val router: Router,
     private val weatherInfoRepository: WeatherInfoRepository,
-    private val placesRepository: PlacesRepository,
-    private val cache: Cache
+    private val placesRepository: PlacesRepository
 ) : ViewModel() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -34,20 +34,14 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    @SuppressLint("MissingPermission")
-    fun getLocation(context: Context) = liveData(Dispatchers.IO) {
-        if (cache.haveLocationPermissions) {
-            emit(Resource.loading(data = null))
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-            try {
-                emit(Resource.success(data = fusedLocationClient.lastLocation.addOnCompleteListener { }))
-            } catch (exception: Exception) {
-                emit(Resource.error(data = null, message = exception.message ?: "Error Occurred!"))
-            }
-        } else {
-            emit(Resource.empty())
-        }
-    }
+//    @SuppressLint("MissingPermission")
+//    fun getLocation(context: Context){
+//        if (haveLocationPermissions(context)) {
+//            fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+//            fusedLocationClient.lastLocation.addOnCompleteListener { }
+//        } else {
+//        }
+//    }
 
     fun getPlace(lat: String, lon: String) = liveData(Dispatchers.IO) {
         emit(Resource.loading(data = null))

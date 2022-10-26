@@ -19,17 +19,9 @@ fun dateTime(time: Long, zone: String, format: String = "HH:mm"): String {
     return instant.atZone(zoneId).format(formatter)
 }
 
-fun checkLocationPermissions(context: Context): Boolean {
+fun haveLocationPermissions(context: Context): Boolean {
     return (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
         == PackageManager.PERMISSION_GRANTED
         && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
         == PackageManager.PERMISSION_GRANTED)
-}
-
-fun requestPermission(permissions: Array<String>){
-    ActivityCompat.requestPermissions(
-        MainActivity(),
-        permissions,
-        PERMISSION_ID
-    )
 }
