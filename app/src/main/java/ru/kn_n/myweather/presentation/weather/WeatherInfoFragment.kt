@@ -1,30 +1,31 @@
 package ru.kn_n.myweather.presentation.weather
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.Address
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.github.terrakok.cicerone.Cicerone
-import com.github.terrakok.cicerone.NavigatorHolder
-import com.github.terrakok.cicerone.Router
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import ru.kn_n.myweather.databinding.FragmentWeatherInfoBinding
 import ru.kn_n.myweather.di.Scopes
 import ru.kn_n.myweather.entities.CurrentWeatherForecastEntity
-import ru.kn_n.myweather.entities.ForecastEntity
 import ru.kn_n.myweather.entities.HourlyWeatherForecastEntity
 import ru.kn_n.myweather.presentation.ViewModelFactory
+import ru.kn_n.myweather.utils.Constants.PERMISSION_ID
 import ru.kn_n.myweather.utils.Status
-import toothpick.ProvidesSingleton
-import toothpick.ProvidesSingletonInScope
-import toothpick.Toothpick
+import ru.kn_n.myweather.utils.checkLocationPermissions
+import ru.kn_n.myweather.utils.requestPermission
 import toothpick.Toothpick.openScope
-import toothpick.ktp.binding.module
 import javax.inject.Inject
 
 class WeatherInfoFragment : Fragment() {
@@ -39,7 +40,7 @@ class WeatherInfoFragment : Fragment() {
 
     private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentWeatherInfoBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -55,13 +56,13 @@ class WeatherInfoFragment : Fragment() {
         }
 
         binding.update.setOnClickListener {
-            getWeather()
+            getWeatherFromLocation()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        getWeather()
+        getWeatherFromLocation()
     }
 
     private fun setupViewModel() {
@@ -69,8 +70,30 @@ class WeatherInfoFragment : Fragment() {
         viewModel = ViewModelProvider(this, viewModelFactory)[WeatherInfoViewModel::class.java]
     }
 
-    private fun getWeather() {
-        viewModel.getWeather("56.897699", "60.626907").observe(viewLifecycleOwner) {
+    private fun getWeatherFromLocation() {
+        viewModel.getLocation(requireContext()).observe(viewLifecycleOwner) {
+            it.let { resource ->
+                when (resource.status) {
+                    Status.SUCCESS -> {
+                        val data = resource.data!!
+                        getWeather(data.result.latitude.toString(), data.result.longitude.toString())
+                    }
+                    Status.ERROR -> {
+                        Log.d("GL", it.message.toString())
+                    }
+                    Status.LOADING -> {
+                        Log.d("GL", "loading")
+                    }
+                    Status.EMPTY -> {
+                        getWeather("56.897699", "60.626907")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getWeather(lat: String, lon: String) {
+        viewModel.getWeather(lat, lon).observe(viewLifecycleOwner) {
             it.let { resource ->
                 when (resource.status) {
                     Status.SUCCESS -> {
@@ -79,10 +102,27 @@ class WeatherInfoFragment : Fragment() {
                         showHourlyWeatherForecast(data.hourlyForecast)
                     }
                     Status.ERROR -> {
-                        Log.d("DEG", it.message.toString())
+                        Log.d("WF", it.message.toString())
                     }
                     Status.LOADING -> {
-                        Log.d("DEG", "loading")
+                        Log.d("WF", "loading")
+                    }
+                }
+            }
+        }
+
+        viewModel.getPlace(lat, lon).observe(viewLifecycleOwner) {
+            it.let { resource ->
+                when (resource.status) {
+                    Status.SUCCESS -> {
+                        val data = resource.data!!
+                        showPlace(data[0])
+                    }
+                    Status.ERROR -> {
+                        Log.d("GP", it.message.toString())
+                    }
+                    Status.LOADING -> {
+                        Log.d("GP", "loading")
                     }
                 }
             }
@@ -92,6 +132,11 @@ class WeatherInfoFragment : Fragment() {
     private fun setupAdapter() {
         binding.hourlyWeatherForecastRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun showPlace(address: Address){
+        binding.place.text = address.getAddressLine(0)
     }
 
     private fun showCurrentWeatherForecast(data: CurrentWeatherForecastEntity) {

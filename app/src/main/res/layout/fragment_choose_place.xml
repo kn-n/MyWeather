@@ -15,7 +15,7 @@
 
         <EditText
             android:id="@+id/search_field"
-            style="@style/os_reg_white_16.edit_text"
+            style="@style/os_reg_white_18.edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/search_hint"
@@ -23,6 +23,7 @@
             android:paddingEnd="@dimen/dimen_40" />
 
         <ImageView
+            android:id="@+id/search_button"
             android:layout_width="@dimen/dimen_size_25"
             android:layout_height="@dimen/dimen_size_25"
             android:layout_gravity="end"

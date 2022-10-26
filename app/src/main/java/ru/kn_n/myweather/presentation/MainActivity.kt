@@ -2,6 +2,7 @@ package ru.kn_n.myweather.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.ViewModelProvider
 import com.github.terrakok.cicerone.NavigatorHolder
 import com.github.terrakok.cicerone.androidx.AppNavigator
 import ru.kn_n.myweather.R
@@ -12,15 +13,39 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject
+    lateinit var viewModel: MainViewModel
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    @Inject
     lateinit var navigatorHolder: NavigatorHolder
+
+    private val navigator = AppNavigator(this, R.id.container)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Toothpick.inject(this@MainActivity, Toothpick.openScope(Scopes.APP_SCOPE))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        setupViewModel()
+
+        viewModel.checkLocationPermissions(this)
     }
 
-    private val navigator = AppNavigator(this, R.id.container)
+    private fun setupViewModel() {
+        viewModelFactory = Toothpick.openScope(Scopes.APP_SCOPE).getInstance(ViewModelFactory::class.java)
+        viewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        viewModel.onRequestPermissionsResult(requestCode, grantResults)
+    }
 
     override fun onResume() {
         super.onResume()

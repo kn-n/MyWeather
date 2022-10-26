@@ -15,6 +15,7 @@
     <dimen name="dimen_txt_12"> 12sp</dimen>
     <dimen name="dimen_txt_14"> 14sp</dimen>
     <dimen name="dimen_txt_16"> 16sp</dimen>
+    <dimen name="dimen_txt_18"> 18sp</dimen>
     <dimen name="dimen_txt_26"> 26sp</dimen>
     <dimen name="dimen_txt_50"> 50sp</dimen>
 

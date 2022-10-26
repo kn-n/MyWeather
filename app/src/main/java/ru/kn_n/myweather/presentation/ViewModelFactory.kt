@@ -14,6 +14,8 @@ class ViewModelFactory @Inject constructor() :
     ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel> create(modelClass: Class<T>): T{
         return when{
+            modelClass.isAssignableFrom(MainViewModel::class.java) ->
+                Toothpick.openScope(Scopes.APP_SCOPE).getInstance(modelClass) as T
             modelClass.isAssignableFrom(WeatherInfoViewModel::class.java) ->
                 Toothpick.openScopes(Scopes.APP_SCOPE, Scopes.WEATHER_INFO_SCOPE).getInstance(modelClass) as T
             modelClass.isAssignableFrom(ChoosePlaceViewModel::class.java) ->

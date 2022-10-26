@@ -6,4 +6,6 @@ import javax.inject.Inject
 
 class PlacesRepository @Inject constructor(private val geocoder: Geocoder) {
     fun getPlaces(query: String) = geocoder.getPlaces(query)
+
+    fun getPlace(lat: String, lon: String) = geocoder.getPlace(lat, lon)
 }

@@ -10,4 +10,6 @@ class Geocoder @Inject constructor(context: Context) {
     private val geocoder = Geocoder(context, Locale.getDefault())
     
     fun getPlaces(query: String): MutableList<Address> = geocoder.getFromLocationName(query, 5)
+
+    fun getPlace(lat: String, lon: String): MutableList<Address> = geocoder.getFromLocation(lat.toDouble(), lon.toDouble(),1)
 }
