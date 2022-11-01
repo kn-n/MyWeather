@@ -7,10 +7,31 @@
     android:background="@color/dark_blue"
     android:orientation="vertical">
 
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_view"
+        style="@style/os_reg_white_18"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_size_30"
+        android:layout_marginTop="@dimen/dimen_20"
+        android:background="@color/dark_blue"
+        android:autofillHints="postalAddress"
+        android:textCursorDrawable="@null"
+        app:iconifiedByDefault="false"
+        app:queryBackground="@null"
+        app:queryHint="@string/search_hint"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:src="@drawable/line"
+        android:layout_marginBottom="@dimen/dimen_10"
+        android:layout_marginHorizontal="@dimen/dimen_20"/>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/dimen_20"
+        android:layout_marginTop="@dimen/dimen_20"
+        android:layout_marginBottom="@dimen/dimen_10"
         android:layout_marginHorizontal="@dimen/dimen_16">
 
         <EditText
@@ -34,11 +55,23 @@
 
     </FrameLayout>
 
+    <TextView
+        android:id="@+id/find_me"
+        style="@style/os_reg_white_14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/my_location"
+        android:layout_marginStart="@dimen/dimen_18"
+        android:paddingHorizontal="@dimen/dimen_10"
+        android:paddingVertical="@dimen/dimen_5"
+        android:background="@drawable/bg"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/found_places_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginTop="@dimen/dimen_10"
         android:layout_marginHorizontal="@dimen/dimen_20"
         tools:listitem="@layout/item_place"/>
 

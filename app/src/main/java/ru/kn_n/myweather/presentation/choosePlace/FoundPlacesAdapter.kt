@@ -9,33 +9,35 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ru.kn_n.myweather.R
+import ru.kn_n.myweather.databinding.ItemPlaceBinding
+import ru.kn_n.myweather.entities.PlaceEntity
 
 class FoundPlacesAdapter (
-    private val data:  MutableList<Address>,
-    private val onItemClick: (place: Address) -> Unit,):
+    private val data: List<PlaceEntity>,
+    private val onItemClick: (place: PlaceEntity) -> Unit,):
     RecyclerView.Adapter<FoundPlacesAdapter.ViewHolder>() {
 
+    inner class ViewHolder(val binding: ItemPlaceBinding): RecyclerView.ViewHolder(binding.root)
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_place, parent, false)
-        return ViewHolder(view)
+        return ViewHolder(
+            ItemPlaceBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
     }
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = data[position]
-        holder.city.text = item.featureName
-        holder.country.text = "${item.countryName}, ${item.adminArea}"
-        holder.place.setOnClickListener {
+        holder.binding.city.text = item.name
+        holder.binding.country.text = "${item.country}, ${item.admin}"
+        holder.binding.place.setOnClickListener {
             onItemClick(item)
         }
     }
 
     override fun getItemCount() = data.size
-
-    class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        val city: TextView = itemView.findViewById(R.id.city)
-        val country: TextView = itemView.findViewById(R.id.country)
-        val place: LinearLayout = itemView.findViewById(R.id.place)
-    }
 }

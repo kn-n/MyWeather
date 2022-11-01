@@ -7,6 +7,8 @@
     <string name="unit_percent">%</string>
     <string name="unit_mm_of_mercury">мм рт. ст.</string>
 
-    <string name="search_hint">Введите город…</string>
+    <string name="search_hint">Введите название места…</string>
+
+    <string name="my_location">Мое местоположение</string>
 
 </resources>

@@ -3,20 +3,15 @@ package ru.kn_n.myweather.utils
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.LocationManager
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.getSystemService
-import ru.kn_n.myweather.presentation.MainActivity
-import ru.kn_n.myweather.utils.Constants.PERMISSION_ID
-import java.time.Instant
-import java.time.ZoneId
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-fun dateTime(time: Long, zone: String, format: String = "HH:mm"): String {
-    val zoneId = ZoneId.of(zone)
-    val instant = Instant.ofEpochSecond(time)
-    val formatter = DateTimeFormatter.ofPattern(format)
-    return instant.atZone(zoneId).format(formatter)
+
+fun dateTime(time: String): String {
+    val newTime = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+    val t = newTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+    return t.toString()
 }
 
 fun haveLocationPermissions(context: Context): Boolean {
@@ -25,3 +20,6 @@ fun haveLocationPermissions(context: Context): Boolean {
         && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
         == PackageManager.PERMISSION_GRANTED)
 }
+
+val String.Companion.EMPTY: String
+    get() = ""

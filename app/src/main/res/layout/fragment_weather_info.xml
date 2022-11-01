@@ -295,7 +295,8 @@
             android:layout_height="match_parent"
             android:layout_margin="@dimen/dimen_10"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="@dimen/dimen_size_30"

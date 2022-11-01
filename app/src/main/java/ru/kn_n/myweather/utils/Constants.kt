@@ -1,7 +1,9 @@
 package ru.kn_n.myweather.utils
 
 object Constants {
-    const val BASE_URL = "https://api.openweathermap.org/data/3.0/"
-    const val API_KEY = "d2395af4ccd2dcb38c93c6555816998f"
+    const val BASE_URL_WEATHER = "https://api.open-meteo.com/v1/"
+    const val BASE_URL_GEOCODING = "https://geocoding-api.open-meteo.com/v1/"
     const val PERMISSION_ID = 112
+    const val BASE_LAT = "56.838008"
+    const val BASE_LON = "60.597452"
 }

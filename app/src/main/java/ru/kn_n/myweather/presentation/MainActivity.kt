@@ -28,19 +28,21 @@ class MainActivity : AppCompatActivity() {
     private val navigator = AppNavigator(this, R.id.container)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_MyWeather)
         Toothpick.inject(this@MainActivity, Toothpick.openScope(Scopes.APP_SCOPE))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         setupViewModel()
 
-//        viewModel.checkLocationPermissions(this)
         if (!haveLocationPermissions(this)){
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
                 Constants.PERMISSION_ID
             )
+        } else {
+            viewModel.navigateWithLocationToWeatherInfoFragment(this)
         }
     }
 
@@ -55,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        viewModel.onRequestPermissionsResult(requestCode, grantResults)
+        viewModel.onRequestPermissionsResult(requestCode, grantResults, this)
     }
 
     override fun onResume() {

@@ -5,5 +5,8 @@ import toothpick.InjectConstructor
 @InjectConstructor
 class APIHelper {
     suspend fun getWeather(lat: String, lon: String) =
-        RetrofitClient.buildService().getWeather(lat, lon)
+        RetrofitClient.buildServiceWeather().getWeather(lat, lon)
+
+    suspend fun getPlaces(name: String) =
+        RetrofitClient.buildServiceGeocoding().getPlaces(name)
 }

@@ -13,4 +13,5 @@
     <color name="gray_blue">#1C1E2C</color>
     <color name="gray">#ABADBB</color>
     <color name="dark_gray">#414353</color>
+    <color name="colorAccent">#ABADBB</color>
 </resources>
