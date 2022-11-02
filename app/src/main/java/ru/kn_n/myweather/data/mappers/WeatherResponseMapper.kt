@@ -1,11 +1,12 @@
 package ru.kn_n.myweather.data.mappers
 
 import android.util.Log
-import ru.kn_n.myweather.data.model.HourlyWeatherResponse
 import ru.kn_n.myweather.data.model.WeatherResponse
 import ru.kn_n.myweather.entities.CurrentWeatherForecastEntity
 import ru.kn_n.myweather.entities.ForecastEntity
 import ru.kn_n.myweather.entities.HourlyWeatherForecastEntity
+import ru.kn_n.myweather.utils.Constants.ISO_LOCAL_DATE_TIME_SHORT
+import ru.kn_n.myweather.utils.Constants.ISO_LOCAL_TIME_SHORT
 import ru.kn_n.myweather.utils.EMPTY
 import ru.kn_n.myweather.utils.dateTime
 import java.math.RoundingMode
@@ -16,7 +17,7 @@ class WeatherResponseMapper {
     fun mapWeatherResponse(response: WeatherResponse): ForecastEntity {
         return ForecastEntity(
             currentForecast = mapCurrentWeatherResponse(response),
-            hourlyForecast = mapHourlyWeatherResponse(response.hourly)
+            hourlyForecast = mapHourlyWeatherResponse(response)
         )
     }
 
@@ -26,71 +27,74 @@ class WeatherResponseMapper {
         return CurrentWeatherForecastEntity(
             weatherCode = currentWeather.weathercode.toString().takeIf { currentWeather.weathercode != null }.orEmpty(),
             weatherDescription = if (currentWeather.weathercode == null) String.EMPTY
-                                    else getDescription(currentWeather.weathercode),
+            else getDescription(currentWeather.weathercode),
             temperature = if (currentWeather.temperature == null) String.EMPTY
-                            else getTemp(currentWeather.temperature),
+            else getTemp(currentWeather.temperature),
             feelTemperature = if (hourlyWeather.time == null ||
-                                    hourlyWeather.apparent_temperature == null ||
-                                    currentWeather.time == null)
-                                String.EMPTY
-                                else getFeelTemp(
-                                    currentWeather.time,
-                                    hourlyWeather.time,
-                                    hourlyWeather.apparent_temperature
-                                ),
+                hourlyWeather.apparent_temperature == null ||
+                currentWeather.time == null
+            )
+                String.EMPTY
+            else getFeelTemp(
+                currentWeather.time,
+                hourlyWeather.time,
+                hourlyWeather.apparent_temperature
+            ),
             windSpeed = if (currentWeather.windspeed == null) String.EMPTY
-                        else getWindSpeed(currentWeather.windspeed),
+            else getWindSpeed(currentWeather.windspeed),
             windDirection = if (currentWeather.winddirection == null) String.EMPTY
-                            else getDirection(currentWeather.winddirection.roundToInt()),
+            else getDirection(currentWeather.winddirection.roundToInt()),
             pressure = if (hourlyWeather.time == null ||
-                            hourlyWeather.surface_pressure == null ||
-                            currentWeather.time == null
-                        ) String.EMPTY
-                        else getPressure(
-                            currentWeather.time,
-                            hourlyWeather.time,
-                            hourlyWeather.surface_pressure
-                        ),
+                hourlyWeather.surface_pressure == null ||
+                currentWeather.time == null
+            ) String.EMPTY
+            else getPressure(
+                currentWeather.time,
+                hourlyWeather.time,
+                hourlyWeather.surface_pressure
+            ),
             humidity = if (hourlyWeather.time == null ||
-                            hourlyWeather.relativehumidity_2m == null ||
-                            currentWeather.time == null
-                        ) String.EMPTY
-                        else getHumidity(
-                            currentWeather.time,
-                            hourlyWeather.time,
-                            hourlyWeather.relativehumidity_2m
-                        )
+                hourlyWeather.relativehumidity_2m == null ||
+                currentWeather.time == null
+            ) String.EMPTY
+            else getHumidity(
+                currentWeather.time,
+                hourlyWeather.time,
+                hourlyWeather.relativehumidity_2m
+            )
         )
     }
 
-    private fun mapHourlyWeatherResponse(response: HourlyWeatherResponse): List<HourlyWeatherForecastEntity> {
-        val timeList = if (response.time.isNullOrEmpty()) emptyList() else response.time.map { dateTime(it) }
-        val temperatureList = if (response.temperature_2m.isNullOrEmpty()) emptyList()
-                                else response.temperature_2m.map { getTemp(it) }
-        val weatherCodeList = if (response.weathercode.isNullOrEmpty()) emptyList() else response.weathercode
+    private fun mapHourlyWeatherResponse(response: WeatherResponse): List<HourlyWeatherForecastEntity> {
+        val currentWeather = response.current_weather
+        val hourlyWeather = response.hourly
+        val firstIndex = if (!hourlyWeather.time.isNullOrEmpty()) hourlyWeather.time.indexOf(currentWeather.time) else 0
+        val timeList = if (hourlyWeather.time.isNullOrEmpty()) emptyList() else hourlyWeather.time.map { dateTime(it, ISO_LOCAL_DATE_TIME_SHORT, ISO_LOCAL_TIME_SHORT) }
+        val temperatureList = if (hourlyWeather.temperature_2m.isNullOrEmpty()) emptyList()
+        else hourlyWeather.temperature_2m.map { getTemp(it) }
+        val weatherCodeList = if (hourlyWeather.weathercode.isNullOrEmpty()) emptyList() else hourlyWeather.weathercode
         val result: MutableList<HourlyWeatherForecastEntity> = mutableListOf()
-        if (timeList.isNotEmpty()
+        return if (timeList.isNotEmpty()
             && temperatureList.isNotEmpty()
             && weatherCodeList.isNotEmpty()
         ) {
-            for (i in timeList) {
-                val index = timeList.indexOf(i)
+            for (i in firstIndex until timeList.size) {
                 result.add(
                     HourlyWeatherForecastEntity(
-                        time = i,
-                        temperature = temperatureList[index],
-                        weatherCode = weatherCodeList[index].toString()
+                        time = timeList[i],
+                        temperature = temperatureList[i],
+                        weatherCode = weatherCodeList[i].toString()
                     )
                 )
             }
-            return result
-        } else return emptyList()
+            result
+        } else emptyList()
     }
 
     private fun getWindSpeed(speed: Double): String {
         val df = DecimalFormat("#.#")
         df.roundingMode = RoundingMode.CEILING
-        return df.format(speed*0.28)
+        return df.format(speed * 0.28)
     }
 
     private fun getDirection(deg: Int) =

@@ -14,9 +14,12 @@ import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import ru.kn_n.myweather.data.repositories.PlacesRepository
 import ru.kn_n.myweather.entities.GeocodingEntity
+import ru.kn_n.myweather.entities.PlaceEntity
 import ru.kn_n.myweather.presentation.navigation.Screens
 import ru.kn_n.myweather.utils.Constants
+import ru.kn_n.myweather.utils.EMPTY
 import ru.kn_n.myweather.utils.Resource
+import ru.kn_n.myweather.utils.makePlaceName
 import javax.inject.Inject
 
 class ChoosePlaceViewModel @Inject constructor(
@@ -35,38 +38,18 @@ class ChoosePlaceViewModel @Inject constructor(
     }
 
     fun search(name: String) = liveData(Dispatchers.IO) {
-        emit(Resource.loading(data = null))
-        try {
-            emit(Resource.success(data = placesRepository.getPlaces(name)))
-        } catch (exception: Exception) {
-            emit(Resource.error(data = null, message = exception.message ?: "Error Occurred!"))
+        if (name.isNotEmpty()){
+            emit(Resource.loading(data = null))
+            try {
+                emit(Resource.success(data = placesRepository.getPlaces(name)))
+            } catch (exception: Exception) {
+                emit(Resource.error(data = null, message = exception.message ?: "Error Occurred!"))
+            }
         }
     }
 
-//    fun startSearch(search: SearchView) {
-//        search.setOnQueryTextListener(
-//            object : SearchView.OnQueryTextListener {
-//                override fun onQueryTextSubmit(text: String?): Boolean {
-//                    if (text != null) {
-//                        search(text)
-//                    } else {
-//
-//                    }
-//                    return false
-//                }
-//
-//                override fun onQueryTextChange(query: String?): Boolean {
-//                    if (query != null) {
-//                        search(query)
-//                    }
-//                    return false
-//                }
-//            }
-//        )
-//    }
-
-    fun navigateWithPlaceToWeather(lat: String, lon: String) {
-        router.navigateTo(Screens.WeatherInfo(lat, lon))
+    fun navigateWithPlaceToWeather(place: PlaceEntity) {
+        router.navigateTo(Screens.WeatherInfo(place.latitude, place.longitude, makePlaceName(place)))
     }
 
     @SuppressLint("MissingPermission")
@@ -75,8 +58,7 @@ class ChoosePlaceViewModel @Inject constructor(
 
         fusedLocationClient.lastLocation.addOnCompleteListener { task ->
             val location = task.result
-            Log.d("GL", location.toString())
-            router.navigateTo(Screens.WeatherInfo(location.latitude.toString(), location.longitude.toString()))
+            router.navigateTo(Screens.WeatherInfo(location.latitude.toString(), location.longitude.toString(), String.EMPTY))
         }
     }
 }

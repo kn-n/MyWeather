@@ -9,17 +9,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.kn_n.myweather.databinding.FragmentChoosePlaceBinding
 import ru.kn_n.myweather.di.Scopes
 import ru.kn_n.myweather.entities.PlaceEntity
 import ru.kn_n.myweather.presentation.ViewModelFactory
-import ru.kn_n.myweather.utils.Constants
-import ru.kn_n.myweather.utils.Status
-import ru.kn_n.myweather.utils.haveLocationPermissions
+import ru.kn_n.myweather.utils.*
 import toothpick.Toothpick
 import javax.inject.Inject
 
@@ -35,6 +39,8 @@ class ChoosePlaceFragment : Fragment() {
 
     private val binding get() = _binding!!
 
+    private var queryTextChangedJob: Job? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentChoosePlaceBinding.inflate(inflater, container, false)
 
@@ -47,17 +53,14 @@ class ChoosePlaceFragment : Fragment() {
         setupViewModel()
         setupAdapter()
         setupSearchView()
+
+        hiddenErrorText(binding.error)
     }
 
     override fun onResume() {
         super.onResume()
 
         with(binding) {
-            searchButton.setOnClickListener {
-                if (searchField.text.isNotEmpty()) {
-                    getFoundPlaces(searchField.text.toString())
-                }
-            }
 
             findMe.setOnClickListener {
                 if (haveLocationPermissions(requireContext())) {
@@ -70,8 +73,30 @@ class ChoosePlaceFragment : Fragment() {
                     )
                 }
             }
-        }
 
+            searchView.setOnQueryTextListener(
+                object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(text: String?): Boolean {
+                        if (!text.isNullOrEmpty()) {
+                            getFoundPlaces(text)
+                        }
+                        return false
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        if (!newText.isNullOrEmpty()) {
+                            queryTextChangedJob?.cancel()
+                            queryTextChangedJob = lifecycleScope.launch(Dispatchers.Main) {
+                                Log.d("SF", "$newText change")
+                                delay(500)
+                                getFoundPlaces(newText)
+                            }
+                        }
+                        return false
+                    }
+                }
+            )
+        }
     }
 
     private fun setupSearchView() {
@@ -103,18 +128,38 @@ class ChoosePlaceFragment : Fragment() {
                 when (resource.status) {
                     Status.SUCCESS -> {
                         val data = resource.data!!
-                        showFoundPlaces(data.listOfPlaces)
-                        Log.d("SF", data.toString())
+                        doOnSuccess(data.listOfPlaces)
                     }
                     Status.ERROR -> {
+//                        doOnError()
                         Log.d("SF", it.message.toString())
                     }
                     Status.LOADING -> {
-                        Log.d("SF", "loading")
+                        doOnLoading()
                     }
                 }
             }
         }
+    }
+
+    private fun doOnSuccess(places: List<PlaceEntity>) {
+        binding.foundPlacesRecyclerView.show()
+        stopCircularLoading(binding.loading)
+        showFoundPlaces(places)
+        Log.d("SF", places.toString())
+    }
+
+    private fun doOnError() {
+        stopCircularLoading(binding.loading)
+        showErrorText(binding.error)
+        binding.foundPlacesRecyclerView.hide()
+    }
+
+    private fun doOnLoading() {
+        hiddenErrorText(binding.error)
+        startCircularLoading(binding.loading)
+        binding.foundPlacesRecyclerView.hide()
+        Log.d("SF", "loading")
     }
 
     private fun showFoundPlaces(result: List<PlaceEntity>) {
@@ -127,7 +172,7 @@ class ChoosePlaceFragment : Fragment() {
     }
 
     private fun onListItemClick(place: PlaceEntity) {
-        viewModel.navigateWithPlaceToWeather(place.latitude, place.longitude)
+        viewModel.navigateWithPlaceToWeather(place)
     }
 
     override fun onDestroyView() {

@@ -150,6 +150,7 @@
         tools:listitem="@layout/item_hourly_weather_forecast" />
 
     <LinearLayout
+        android:id="@+id/weather_params"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/dimen_20"
@@ -325,4 +326,7 @@
 
     </LinearLayout>
 
+    <include
+        android:id="@+id/skeleton"
+        layout="@layout/item_placeholder" />
 </androidx.constraintlayout.widget.ConstraintLayout>

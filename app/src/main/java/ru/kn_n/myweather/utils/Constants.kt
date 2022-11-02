@@ -6,4 +6,6 @@ object Constants {
     const val PERMISSION_ID = 112
     const val BASE_LAT = "56.838008"
     const val BASE_LON = "60.597452"
+    const val ISO_LOCAL_DATE_TIME_SHORT = "yyyy-MM-dd'T'HH:mm"
+    const val ISO_LOCAL_TIME_SHORT = "HH:mm"
 }

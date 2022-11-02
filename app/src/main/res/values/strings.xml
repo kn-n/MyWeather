@@ -11,4 +11,6 @@
 
     <string name="my_location">Мое местоположение</string>
 
+    <string name="error">Что-то пошло не так :(</string>
+
 </resources>

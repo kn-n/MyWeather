@@ -9,5 +9,5 @@ import javax.inject.Inject
 class PlacesRepository @Inject constructor(private val geocoder: Geocoder, private val apiHelper: APIHelper) {
     suspend fun getPlaces(name: String) = GeocodingResponseMapper().mapGeocodingResponse(apiHelper.getPlaces(name))
 
-    fun getPlace(lat: String, lon: String) = geocoder.getPlace(lat, lon)
+    fun getPlace(lat: String, lon: String) = GeocodingResponseMapper().mapGeocoderResponse(geocoder.getPlace(lat, lon)[0])
 }
