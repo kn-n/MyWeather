@@ -4,14 +4,11 @@ import android.Manifest
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,13 +18,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.kn_n.myweather.databinding.FragmentChoosePlaceBinding
 import ru.kn_n.myweather.di.Scopes
-import ru.kn_n.myweather.entities.PlaceEntity
+import ru.kn_n.myweather.domain.entities.PlaceEntity
 import ru.kn_n.myweather.presentation.ViewModelFactory
+import ru.kn_n.myweather.presentation.base.BaseFragment
 import ru.kn_n.myweather.utils.*
 import toothpick.Toothpick
 import javax.inject.Inject
 
-class ChoosePlaceFragment : Fragment() {
+class ChoosePlaceFragment : BaseFragment<FragmentChoosePlaceBinding>(FragmentChoosePlaceBinding::inflate) {
 
     @Inject
     lateinit var viewModel: ChoosePlaceViewModel
@@ -35,17 +33,7 @@ class ChoosePlaceFragment : Fragment() {
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
-    private var _binding: FragmentChoosePlaceBinding? = null
-
-    private val binding get() = _binding!!
-
     private var queryTextChangedJob: Job? = null
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentChoosePlaceBinding.inflate(inflater, container, false)
-
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -123,21 +111,15 @@ class ChoosePlaceFragment : Fragment() {
     }
 
     private fun getFoundPlaces(query: String) {
-        viewModel.search(query).observe(viewLifecycleOwner) {
+        viewModel.search(query)
+        viewModel.resultSearch.observe(viewLifecycleOwner) {
             it.let { resource ->
-                when (resource.status) {
-                    Status.SUCCESS -> {
-                        val data = resource.data!!
-                        doOnSuccess(data.listOfPlaces)
-                    }
-                    Status.ERROR -> {
-//                        doOnError()
-                        Log.d("SF", it.message.toString())
-                    }
-                    Status.LOADING -> {
-                        doOnLoading()
-                    }
-                }
+                showRequestResult(
+                    resource = resource,
+                    doOnSuccess = { resource.data?.let { data -> doOnSuccess(data.listOfPlaces) } },
+                    doOnLoading = { doOnLoading() },
+                    doOnError = { doOnError() }
+                )
             }
         }
     }
@@ -173,10 +155,5 @@ class ChoosePlaceFragment : Fragment() {
 
     private fun onListItemClick(place: PlaceEntity) {
         viewModel.navigateWithPlaceToWeather(place)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

@@ -3,8 +3,8 @@ package ru.kn_n.myweather.data.mappers
 import android.location.Address
 import ru.kn_n.myweather.data.model.GeocodingResponse
 import ru.kn_n.myweather.data.model.PlaceResponse
-import ru.kn_n.myweather.entities.GeocodingEntity
-import ru.kn_n.myweather.entities.PlaceEntity
+import ru.kn_n.myweather.domain.entities.GeocodingEntity
+import ru.kn_n.myweather.domain.entities.PlaceEntity
 import ru.kn_n.myweather.utils.EMPTY
 
 class GeocodingResponseMapper {

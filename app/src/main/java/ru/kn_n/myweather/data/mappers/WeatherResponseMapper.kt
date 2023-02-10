@@ -1,10 +1,9 @@
 package ru.kn_n.myweather.data.mappers
 
-import android.util.Log
 import ru.kn_n.myweather.data.model.WeatherResponse
-import ru.kn_n.myweather.entities.CurrentWeatherForecastEntity
-import ru.kn_n.myweather.entities.ForecastEntity
-import ru.kn_n.myweather.entities.HourlyWeatherForecastEntity
+import ru.kn_n.myweather.domain.entities.CurrentWeatherForecastEntity
+import ru.kn_n.myweather.domain.entities.ForecastEntity
+import ru.kn_n.myweather.domain.entities.HourlyWeatherForecastEntity
 import ru.kn_n.myweather.utils.Constants.ISO_LOCAL_DATE_TIME_SHORT
 import ru.kn_n.myweather.utils.Constants.ISO_LOCAL_TIME_SHORT
 import ru.kn_n.myweather.utils.EMPTY
@@ -25,11 +24,11 @@ class WeatherResponseMapper {
         val currentWeather = response.current_weather
         val hourlyWeather = response.hourly
         return CurrentWeatherForecastEntity(
-            weatherCode = currentWeather.weathercode.toString().takeIf { currentWeather.weathercode != null }.orEmpty(),
-            weatherDescription = if (currentWeather.weathercode == null) String.EMPTY
-            else getDescription(currentWeather.weathercode),
-            temperature = if (currentWeather.temperature == null) String.EMPTY
-            else getTemp(currentWeather.temperature),
+            weatherCode = currentWeather.weathercode?.let { "CODE_${currentWeather.weathercode}" } ?: String.EMPTY,
+            weatherDescription = currentWeather.weathercode?.let {
+                getDescription(currentWeather.weathercode)
+            } ?: String.EMPTY,
+            temperature = currentWeather.temperature?.let { getTemp(currentWeather.temperature) } ?: String.EMPTY,
             feelTemperature = if (hourlyWeather.time == null ||
                 hourlyWeather.apparent_temperature == null ||
                 currentWeather.time == null
@@ -40,10 +39,10 @@ class WeatherResponseMapper {
                 hourlyWeather.time,
                 hourlyWeather.apparent_temperature
             ),
-            windSpeed = if (currentWeather.windspeed == null) String.EMPTY
-            else getWindSpeed(currentWeather.windspeed),
-            windDirection = if (currentWeather.winddirection == null) String.EMPTY
-            else getDirection(currentWeather.winddirection.roundToInt()),
+            windSpeed = currentWeather.windspeed?.let { getWindSpeed(currentWeather.windspeed) } ?: String.EMPTY,
+            windDirection = currentWeather.winddirection?.let {
+                getDirection(currentWeather.winddirection.roundToInt())
+            } ?: String.EMPTY,
             pressure = if (hourlyWeather.time == null ||
                 hourlyWeather.surface_pressure == null ||
                 currentWeather.time == null
@@ -69,10 +68,17 @@ class WeatherResponseMapper {
         val currentWeather = response.current_weather
         val hourlyWeather = response.hourly
         val firstIndex = if (!hourlyWeather.time.isNullOrEmpty()) hourlyWeather.time.indexOf(currentWeather.time) else 0
-        val timeList = if (hourlyWeather.time.isNullOrEmpty()) emptyList() else hourlyWeather.time.map { dateTime(it, ISO_LOCAL_DATE_TIME_SHORT, ISO_LOCAL_TIME_SHORT) }
+        val timeList = if (hourlyWeather.time.isNullOrEmpty()) emptyList() else hourlyWeather.time.map {
+            dateTime(
+                it,
+                ISO_LOCAL_DATE_TIME_SHORT,
+                ISO_LOCAL_TIME_SHORT
+            )
+        }
         val temperatureList = if (hourlyWeather.temperature_2m.isNullOrEmpty()) emptyList()
         else hourlyWeather.temperature_2m.map { getTemp(it) }
-        val weatherCodeList = if (hourlyWeather.weathercode.isNullOrEmpty()) emptyList() else hourlyWeather.weathercode
+        val weatherCodeList = if (hourlyWeather.weathercode.isNullOrEmpty()) emptyList()
+        else getStringWeatherCodeList(hourlyWeather.weathercode)
         val result: MutableList<HourlyWeatherForecastEntity> = mutableListOf()
         return if (timeList.isNotEmpty()
             && temperatureList.isNotEmpty()
@@ -89,6 +95,12 @@ class WeatherResponseMapper {
             }
             result
         } else emptyList()
+    }
+
+    private fun getStringWeatherCodeList(intList: List<Int>): List<String> {
+        val stringList = mutableListOf<String>()
+        intList.map { stringList.add("CODE_$it") }
+        return stringList
     }
 
     private fun getWindSpeed(speed: Double): String {
@@ -161,39 +173,38 @@ class WeatherResponseMapper {
         }
 
     companion object {
-        val NORTH = "С"
-        val NORTHWEST = "СЗ"
-        val NORTHEAST = "СВ"
-        val SOUTH = "Ю"
-        val SOUTHWEST = "ЮЗ"
-        val SOUTHEAST = "ЮВ"
-        val EAST = "В"
-        val WEST = "З"
-        val CLEAR_SKY = "Ясно"
-        val MAINLY_CLEAR = "Переменная облачность"
-        val PARTLY_CLOUDY = "Облачно"
-        val OVERCAST = "Пасмурно"
-        val FOG = "Туман"
-        val DEP_RIME_FOG = "Иней"
-        val DRIZZLE_LIGHT = "Легкий моросящий дождь"
-        val DRIZZLE_MODERATE = "Моросящий дождь"
-        val DRIZZLE_INTENSIVE = "Сильный моросящий дождь"
-        val FREEZING_DRIZZLE_LIGHT = "Гололед"
-        val FREEZING_DRIZZLE_INTENSIVE = "Гололед"
-        val RAIN_LIGHT = "Легкий дождь"
-        val RAIN_MODERATE = "Дождь"
-        val RAIN_INTENSIVE = "Сильный дождь"
-        val FREEZING_RAIN_LIGHT = "Легкий ледяной дождь"
-        val FREEZING_RAIN_INTENSIVE = "Сильный ледяной дождь"
-        val SNOW_FALL_LIGHT = "Легкий снегопад"
-        val SNOW_FALL_MODERATE = "Снегопад"
-        val SNOW_FALL_INTENSIVE = "Сильный снегопад"
-        val SNOW_GRAINS = "Снежные зерна"
-        val RAIN_SHOWERS_LIGHT = "Слабый ливень"
-        val RAIN_SHOWERS_MODERATE = "Ливень"
-        val RAIN_SHOWERS_INTENSIVE = "Сильный ливень"
-        val SNOW_SHOWERS_LIGHT = "Слабая метель"
-        val SNOW_SHOWERS_INTENSIVE = "Сильная метель"
-
+        const val NORTH = "С"
+        const val NORTHWEST = "СЗ"
+        const val NORTHEAST = "СВ"
+        const val SOUTH = "Ю"
+        const val SOUTHWEST = "ЮЗ"
+        const val SOUTHEAST = "ЮВ"
+        const val EAST = "В"
+        const val WEST = "З"
+        const val CLEAR_SKY = "Ясно"
+        const val MAINLY_CLEAR = "Переменная облачность"
+        const val PARTLY_CLOUDY = "Облачно"
+        const val OVERCAST = "Пасмурно"
+        const val FOG = "Туман"
+        const val DEP_RIME_FOG = "Иней"
+        const val DRIZZLE_LIGHT = "Легкий моросящий дождь"
+        const val DRIZZLE_MODERATE = "Моросящий дождь"
+        const val DRIZZLE_INTENSIVE = "Сильный моросящий дождь"
+        const val FREEZING_DRIZZLE_LIGHT = "Гололед"
+        const val FREEZING_DRIZZLE_INTENSIVE = "Гололед"
+        const val RAIN_LIGHT = "Легкий дождь"
+        const val RAIN_MODERATE = "Дождь"
+        const val RAIN_INTENSIVE = "Сильный дождь"
+        const val FREEZING_RAIN_LIGHT = "Легкий град"
+        const val FREEZING_RAIN_INTENSIVE = "Сильный град"
+        const val SNOW_FALL_LIGHT = "Легкий снегопад"
+        const val SNOW_FALL_MODERATE = "Снегопад"
+        const val SNOW_FALL_INTENSIVE = "Сильный снегопад"
+        const val SNOW_GRAINS = "Снегопад"
+        const val RAIN_SHOWERS_LIGHT = "Слабый ливень"
+        const val RAIN_SHOWERS_MODERATE = "Ливень"
+        const val RAIN_SHOWERS_INTENSIVE = "Сильный ливень"
+        const val SNOW_SHOWERS_LIGHT = "Слабая метель"
+        const val SNOW_SHOWERS_INTENSIVE = "Сильная метель"
     }
 }

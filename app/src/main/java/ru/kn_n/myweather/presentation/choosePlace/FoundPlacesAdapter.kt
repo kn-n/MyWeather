@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import ru.kn_n.myweather.R
 import ru.kn_n.myweather.databinding.ItemPlaceBinding
-import ru.kn_n.myweather.entities.PlaceEntity
+import ru.kn_n.myweather.domain.entities.PlaceEntity
 
 class FoundPlacesAdapter (
     private val data: List<PlaceEntity>,

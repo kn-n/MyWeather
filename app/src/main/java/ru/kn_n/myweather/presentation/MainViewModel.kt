@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.github.terrakok.cicerone.Router
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import ru.kn_n.myweather.presentation.model.LocationCache
 import ru.kn_n.myweather.presentation.navigation.Screens
 import ru.kn_n.myweather.utils.Constants
 import ru.kn_n.myweather.utils.Constants.BASE_LAT
@@ -15,7 +16,10 @@ import ru.kn_n.myweather.utils.Constants.BASE_LON
 import ru.kn_n.myweather.utils.EMPTY
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(private var router: Router) : ViewModel() {
+class MainViewModel @Inject constructor(
+    private val router: Router,
+    private val cache: LocationCache
+) : ViewModel() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -35,12 +39,17 @@ class MainViewModel @Inject constructor(private var router: Router) : ViewModel(
 
         fusedLocationClient.lastLocation.addOnCompleteListener { task ->
             val location = task.result
-            Log.d("GL", location.toString())
-            router.navigateTo(Screens.WeatherInfo(location.latitude.toString(), location.longitude.toString(), String.EMPTY))
+            cache.placeLat = location.latitude.toString()
+            cache.placeLon = location.longitude.toString()
+            cache.placeName = String.EMPTY
+            router.navigateTo(Screens.WeatherInfo())
         }
     }
 
     private fun navigateWithBaseLocationToWeatherInfoFragment() {
-        router.navigateTo(Screens.WeatherInfo(BASE_LAT, BASE_LON, String.EMPTY))
+        cache.placeLat = BASE_LAT
+        cache.placeLon = BASE_LON
+        cache.placeName = String.EMPTY
+        router.navigateTo(Screens.WeatherInfo())
     }
 }

@@ -2,10 +2,9 @@ package ru.kn_n.myweather.data.api
 
 import retrofit2.http.GET
 import retrofit2.http.Query
-import ru.kn_n.myweather.data.model.GeocodingResponse
 import ru.kn_n.myweather.data.model.WeatherResponse
 
-interface API {
+interface APIWeather {
     @GET("forecast")
     suspend fun getWeather(
         @Query("latitude") latitude: String,
@@ -18,10 +17,4 @@ interface API {
         @Query("current_weather") current_weather: String = "true",
         @Query("timezone") timezone: String = "auto"
     ): WeatherResponse
-
-    @GET("search")
-    suspend fun getPlaces(
-        @Query("name") name: String,
-        @Query("language") language: String = "ru"
-    ): GeocodingResponse
 }

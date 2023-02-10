@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import com.github.rahatarmanahmed.cpv.CircularProgressView
-import ru.kn_n.myweather.entities.PlaceEntity
+import ru.kn_n.myweather.domain.entities.PlaceEntity
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

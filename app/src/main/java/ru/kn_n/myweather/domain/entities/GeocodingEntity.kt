@@ -1,4 +1,4 @@
-package ru.kn_n.myweather.entities
+package ru.kn_n.myweather.domain.entities
 
 class GeocodingEntity (
     val listOfPlaces: List<PlaceEntity>
